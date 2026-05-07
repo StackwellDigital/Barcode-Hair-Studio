@@ -565,27 +565,112 @@
   }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
+  /* HAMBURGER */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 0.4rem;
+    background: none;
+    border: none;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--charcoal);
+    transition: all 0.3s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--cream);
+    z-index: 99;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--charcoal);
+    text-decoration: none;
+  }
+  .mobile-menu a.mob-btn {
+    background: var(--terracotta);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 1rem 2.5rem;
+    border-radius: 2px;
+    margin-top: 1rem;
+  }
+
   @media (max-width: 900px) {
     nav { padding: 1.2rem 1.5rem; }
     .nav-links { display: none; }
+    .hamburger { display: flex; }
+
+    /* HERO — stack, full photo */
     .hero { grid-template-columns: 1fr; min-height: auto; }
-    .hero-visual { height: 60vw; }
-    .hero-content { padding: 3rem 2rem 4rem; }
-    .hero-badges { flex-wrap: wrap; }
+    .hero-visual {
+      height: 100vw;       /* square-ish, shows full portrait photo */
+      max-height: 520px;
+      order: -1;           /* photo on top, text below */
+    }
+    .hero-img-main {
+      object-position: center center; /* show face not just hairline */
+    }
+    .hero-content { padding: 2.5rem 1.5rem 3rem; }
+    .hero-title { font-size: clamp(2.8rem, 10vw, 4rem); }
+    .hero-sub { font-size: 0.85rem; margin-bottom: 2rem; }
+    .hero-actions { flex-wrap: wrap; gap: 0.75rem; }
+    .hero-badges { flex-wrap: wrap; gap: 1rem; margin-top: 2.5rem; padding-top: 2rem; }
+    .hero-img-card { display: none; } /* hide floating card on mobile */
+    .hero-dot { width: 60px; height: 60px; font-size: 0.5rem; top: 1rem; right: 1rem; }
+
+    /* SERVICES */
     .services-strip { padding: 3rem 1.5rem; }
-    .strip-grid { grid-template-columns: 1fr 1fr; }
+    .strip-grid { grid-template-columns: 1fr 1fr; gap: 2px; }
+    .strip-card { padding: 1.8rem 1.2rem; }
+
+    /* ABOUT */
     .about-split { grid-template-columns: 1fr; }
-    .about-img-wrap { height: 50vw; }
-    .about-text-wrap { padding: 3rem 2rem; }
-    .gallery-section { padding: 4rem 1.5rem; }
-    .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
-    .gallery-cell:nth-child(1) { grid-column: span 1; grid-row: span 1; }
-    .gallery-cell:nth-child(4) { grid-column: span 1; }
+    .about-img-wrap { height: 65vw; min-height: 240px; }
+    .about-text-wrap { padding: 3rem 1.5rem; }
+
+    /* GALLERY */
+    .gallery-section { padding: 3.5rem 1.5rem; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; }
+    .gallery-cell { aspect-ratio: 3/4; }
+
+    /* TESTIMONIALS */
     .testimonials { padding: 4rem 1.5rem; }
     .testi-grid { grid-template-columns: 1fr; }
-    .booking { grid-template-columns: 1fr; gap: 3rem; padding: 4rem 1.5rem; }
+
+    /* BOOKING */
+    .booking { grid-template-columns: 1fr; gap: 2.5rem; padding: 3.5rem 1.5rem; }
     .field-row { grid-template-columns: 1fr; }
-    footer { flex-direction: column; gap: 2rem; text-align: center; padding: 3rem 1.5rem; }
+
+    /* FOOTER */
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; padding: 3rem 1.5rem; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-visual { height: 115vw; max-height: 440px; }
+    .strip-grid { grid-template-columns: 1fr; }
+    .gallery-grid { grid-template-columns: 1fr; }
+    .gallery-cell { aspect-ratio: 4/5; }
+    .hero-dot { display: none; }
   }
 </style>
 </head>
@@ -599,7 +684,17 @@
     <li><a href="#gallery">Gallery</a></li>
     <li><a href="#booking" class="nav-btn">Book Now</a></li>
   </ul>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#services" class="mob-link">Services</a>
+  <a href="#about" class="mob-link">About</a>
+  <a href="#gallery" class="mob-link">Gallery</a>
+  <a href="#booking" class="mob-btn">Book Now</a>
+</div>
 
 <section class="hero">
   <div class="hero-content">
@@ -769,6 +864,21 @@
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
   });
 
   const reveals = document.querySelectorAll('.reveal');
